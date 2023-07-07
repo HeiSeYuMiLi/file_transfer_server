@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/fileserver.dir/src/RequestHandler.cpp.o CMakeFiles/fileserver.dir/src/Server.cpp.o CMakeFiles/fileserver.dir/src/Session.cpp.o CMakeFiles/fileserver.dir/src/Logger.cpp.o CMakeFiles/fileserver.dir/src/main.cpp.o -o fileserver  /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.74.0 /usr/lib/x86_64-linux-gnu/libboost_atomic.so.1.74.0 

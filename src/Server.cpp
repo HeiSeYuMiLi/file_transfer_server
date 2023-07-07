@@ -1,12 +1,12 @@
 #include "Server.h"
 #include "Session.h"
-#include <iostream>
+#include "Logger.h"
 
-namespace file_transfer_server {
+namespace file_server {
 
-	Server::Server(boost::asio::io_context& ioc,short port):_ioc(ioc),_acceptor(_ioc,
-		tcp::endpoint(tcp::v4(),port)) {
-		std::cout << "Server start success, listen on port : " << port << std::endl;
+	Server::Server(boost::asio::io_context& ioc, short port) :_ioc(ioc), _acceptor(_ioc,
+		tcp::endpoint(tcp::v4(), port)) {
+		Logger(FILE_LOCATION, log_level::info, "Server start success, listen on port : " + std::to_string(port) + ".");
 		Start();
 	}
 
@@ -23,10 +23,10 @@ namespace file_transfer_server {
 	void Server::AcceptHandler(std::shared_ptr<Session> new_session, const boost::system::error_code& ec) {
 		if (!ec) {
 			new_session->Start();
-			_sessions.insert(std::make_pair(new_session->GetUuid(),new_session));
+			_sessions.insert(std::make_pair(new_session->GetUuid(), new_session));
 		}
 		else {
-			std::cout << "Session accept failed, error is " << ec.what() << std::endl;
+			Logger(FILE_LOCATION, log_level::error, "Session accept failed, error is " + ec.message() + "!");
 		}
 
 		Start();

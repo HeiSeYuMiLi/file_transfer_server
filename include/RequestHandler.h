@@ -4,7 +4,7 @@
 #include "Request.h"
 #include "Reply.h"
 
-namespace file_transfer_server {
+namespace file_server {
 
 	class RequestHandler
 	{

@@ -5,7 +5,7 @@
 
 using boost::asio::ip::tcp;
 
-namespace file_transfer_server {
+namespace file_server {
 
 	class Session;
 	class Server

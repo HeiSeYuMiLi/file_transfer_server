@@ -1,32 +1,74 @@
-#include "RequestHandler.h"
-#include <iostream>
 #include <fstream>
+#include <boost/asio.hpp>
+#include "RequestHandler.h"
+#include "Logger.h"
 
-namespace file_transfer_server {
 
-	bool RequestHandler::HandlerRequest(const std::vector<char>& data, std::vector<char>& msgNode) {
-		std::ifstream is("./LeBronJames.jpg",
-			std::ifstream::in | std::ios::binary);
-		if (is)
-		{
-			msgNode.clear();
+namespace file_server {
 
-			// è·å–æ–‡ä»¶é•¿åº¦
-			is.seekg(0, is.end);
-			short length = is.tellg();
+	bool RequestHandler::HandleRequest(Request& req, Reply& rep) {
+		if (req.reqType == "download") {
+			// ¶ÔfilePath½øĞĞ¼òµ¥µÄ´¦Àí
+			auto it = std::find(req.content.rbegin(), req.content.rend(), '/');
+			size_t index = 0;
+			if (it != req.content.rend())
+				index = req.content.size() - std::distance(req.content.rbegin(), it);
+			std::string fileName(req.content.begin() + index, req.content.end());
+			Logger(FILE_LOCATION, log_level::info, "The file being read is " + fileName + ".");
 
-			// å­˜å‚¨é•¿åº¦
-			char* p = reinterpret_cast<char*>(&length); //å°†shortå€¼çš„åœ°å€è½¬æ¢ä¸ºcharæŒ‡é’ˆ
-			msgNode.resize(length + HEAD_LENGTH);
-			msgNode[0] = p[0]; //å°†shortå€¼çš„ä½8ä½å¤åˆ¶åˆ°vçš„ç¬¬ä¸€ä¸ªå…ƒç´ 
-			msgNode[1] = p[1]; //å°†shortå€¼çš„é«˜8ä½å¤åˆ¶åˆ°vçš„ç¬¬äºŒä¸ªå…ƒç´ 
+			std::ifstream is("../testfile/" + fileName, std::ifstream::in | std::ios::binary);
+			if (is)
+			{
+				rep.Clear();
+				rep.repType = "download";
+				rep.fileType = req.fileType;
 
-			is.seekg(0, is.beg);
-			is.read(&msgNode[HEAD_LENGTH], length);
+				// »ñÈ¡ÎÄ¼ş³¤¶È
+				is.seekg(0, is.end);
+				long length = is.tellg();
+				rep.content.resize(length);
+
+				// ×ªÎªÍøÂç×Ö½ÚĞò
+				long newLength = boost::asio::detail::socket_ops::host_to_network_long(length);
+				// ´æ´¢³¤¶È
+				rep.contentLength = std::to_string(newLength);
+
+				is.seekg(0, is.beg);
+				is.read(rep.content.data(), length);
+				req.Clear();
+			}
+			else {
+				Logger(FILE_LOCATION, log_level::error, "File not found!");
+				return false;
+			}
 			is.close();
 		}
-		else
+		else if (req.reqType == "upload") {
+			static int k = 1000;
+			std::string fileName = "../testfile/" + std::to_string(k) + "." + req.fileType;
+			std::ofstream out(fileName, std::ios::binary);
+			if (!out)
+			{
+				Logger(FILE_LOCATION, log_level::error, "File not found!");
+				return false;
+			}
+			else
+			{
+				// Êä³öµ½´ÅÅÌÎÄ¼ş
+				out.write(req.content.data(), req.contentLength);
+				out.close();
+			}
+			k++;
+			Logger(FILE_LOCATION, log_level::info, "³É¹¦½ÓÊÕÎÄ¼ş");
 			return false;
+		}
+		else {
+
+		}
+
+
+		
+
 		return true;
 	}
 

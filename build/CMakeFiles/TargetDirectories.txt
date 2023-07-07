@@ -1,0 +1,3 @@
+/home/hsyml/Mproject/file_server/build/CMakeFiles/fileserver.dir
+/home/hsyml/Mproject/file_server/build/CMakeFiles/edit_cache.dir
+/home/hsyml/Mproject/file_server/build/CMakeFiles/rebuild_cache.dir
